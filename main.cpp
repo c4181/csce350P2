@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <string>
@@ -8,102 +9,109 @@ using std::cout;
 using std::endl;
 using std::map;
 using std::pair;
+using std::next_permutation;
 using std::stoi;
 using std::string;
+using std::to_string;
 using std::vector;
 /***************************************************************************
  * Author/copyright:  Christopher Moyer.  All rights reserved.
- * Date: 18 October 2019
+ * Date: 21 October 2019
  *
- * TODO Write program description
+ * Reads in a cryptarithmetic problem from cin then prints all possible
+ * solutions. This program continues running until cin detects
+ * the end of file.
  *
  **/
-void loop(vector<int> counts, int index, int num_of_loops, map<char, int> &solutions) {
-  for (counts.at(index); counts.at(index) < 10; counts.at(index) = counts.at(index) + 1) {
-    if (index != num_of_loops) {
-      counts.push_back(0);
-      loop(counts, index + 1, num_of_loops, solutions);
-    } 
-    
-    if (index == num_of_loops) {
-      for (size_t i = 0; i < counts.size(); ++i) {
-        for (size_t j = 1; j < counts.size(); ++j) {
-          if (j != i) {
-            if (counts.at(i) == counts.at(j)) {
-              cout << counts.at(i) << endl;
-              return;
-            }
-          }
-        }
-      }
-    
-    for (map<char, int>::iterator it=solutions.begin(); it!=solutions.end(); ++it) {
-      it -> second = counts.at(index);
-      cout << counts.at(index);
-    }
-    return;
-    }
-  }
-}
 int main() {
-  bool found_solution;
   string input;
-  string first_word;
-  string second_word;
-  string third_word;
-  map<char, int> solutions;
-  vector<int> counts;
-  
-  while(cin >> input) {
+  string first_word, second_word, third_word;
+  vector<int> permuations {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  // Read from stdin until EOF
+  while (cin >> input) {
+    bool solution_found = false;
     size_t plus_index;
     size_t equals_index;
     plus_index = input.find("+", 0);
     first_word = input.substr(0, plus_index);
-    found_solution = false;
+    map<char, int> tester;
+    vector<map<char, int>> checked_permutations;
 
     equals_index = input.find("=");
     second_word = input.substr(plus_index + 1, (equals_index - plus_index) - 1);
-
     third_word = input.substr(equals_index + 1);
 
+    // Insert all unquie letters from the words into a map
     for (size_t i = 0; i < first_word.size(); ++i) {
-      solutions.insert(pair<char, int>(first_word.at(i), 0));
+      tester.insert(pair<char, int>(first_word.at(i), 0));
     }
     for (size_t i = 0; i < second_word.size(); ++i) {
-      solutions.insert(pair<char, int>(second_word.at(i), 0));
+      tester.insert(pair<char, int>(second_word.at(i), 0));
     }
-    for(size_t i = 0; i < third_word.size(); ++i) {
-      solutions.insert(pair<char, int>(third_word.at(i), 0));
+    for (size_t i = 0; i < third_word.size(); ++i) {
+      tester.insert(pair<char, int>(third_word.at(i), 0));
     }
 
-    counts.push_back(1);
-    loop(counts, 0, solutions.size() - 1, solutions);
+    do {
+      int i = 0;
+      map<char, int>::iterator it;
+      bool already_checked = false;
+      string first_word_test, second_word_test, third_word_test;
+      int first_word_int, second_word_int, thrid_word_int;
 
-    for (map<char, int>::iterator it = solutions.begin(); it != solutions.end(); ++it) {
-      cout << it -> first << " " << it -> second << endl;
-      string solution_string_1, solution_string_2, solution_string_3;
-      int solution_int_1, solution_int_2, solution_int_3;
+      // Assign new values to the keys
+      for (it = tester.begin(); it != tester.end(); ++it) {
+        it -> second = permuations.at(i);
+        ++i;
+      }
 
+      // Lookup the values for each letter and create a string
       for (size_t i = 0; i < first_word.size(); ++i) {
-        solution_string_1 += solutions.find(first_word.at(i)) -> second;
+        it = tester.find(first_word.at(i));
+        first_word_test += to_string(it -> second);
       }
+      if (first_word_test.at(0) == '0') continue;
       for (size_t i = 0; i < second_word.size(); ++i) {
-        solution_string_2 += solutions.find(second_word.at(i)) -> second;
+        it = tester.find(second_word.at(i));
+        second_word_test += to_string(it -> second);
       }
+      if (second_word_test.at(0) == '0') continue;
       for (size_t i = 0; i < third_word.size(); ++i) {
-        solution_string_3 += solutions.find(third_word.at(i)) -> second;
+        it = tester.find(third_word.at(i));
+        third_word_test += to_string(it -> second);
       }
+      if (third_word_test.at(0) == '0') continue;
 
-      solution_int_1 = stoi(solution_string_1);
-      solution_int_2 = stoi(solution_string_2);
-      solution_int_3 = stoi(solution_string_3);
+      // Convert the strings to ints
+      first_word_int = stoi(first_word_test);
+      second_word_int = stoi(second_word_test);
+      thrid_word_int = stoi(third_word_test);
 
-      if (solution_int_1 + solution_int_2 == solution_int_3) {
-        found_solution = true;
-        cout << solution_int_1 << "+" << solution_int_2 << "=" << solution_int_3 << endl;
+      // Check if the canidate is valid solution.
+      // If valid, checks to see whether the solution has already
+      // been checked. If not, print to stdout.
+      if (first_word_int + second_word_int == thrid_word_int) {
+        for (size_t i = 0; i < checked_permutations.size(); ++i) {
+          if (checked_permutations.at(i) == tester) {
+            already_checked = true;
+            break;
+          }
+        }
+        if (already_checked) {
+          continue;
+        } else {
+          checked_permutations.push_back(tester);
+        }
+        cout << first_word_int << "+" << second_word_int << "="
+             << thrid_word_int << endl;
+        solution_found = true;
       }
-    }
-    if (found_solution == false) {
+      // Gernate a new new set of permuations until back at the
+      // original set
+    } while (next_permutation(permuations.begin(), permuations.end()));
+
+    if (solution_found == false) {
       cout << "no solution" << endl;
       cout << endl;
     } else {
