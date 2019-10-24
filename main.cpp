@@ -18,15 +18,18 @@ using std::vector;
  * Author/copyright:  Christopher Moyer.  All rights reserved.
  * Date: 21 October 2019
  *
- * TODO Write program description
+ * Reads in a cryptarithmetic problem from cin then prints all possible
+ * solutions. This program continues running until cin detects
+ * the end of file.
  *
  **/
 int main() {
   string input;
   string first_word, second_word, third_word;
   vector<int> permuations {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  
-  while(cin >> input) {
+
+  // Read from stdin until EOF
+  while (cin >> input) {
     bool solution_found = false;
     size_t plus_index;
     size_t equals_index;
@@ -37,16 +40,16 @@ int main() {
 
     equals_index = input.find("=");
     second_word = input.substr(plus_index + 1, (equals_index - plus_index) - 1);
-
     third_word = input.substr(equals_index + 1);
 
+    // Insert all unquie letters from the words into a map
     for (size_t i = 0; i < first_word.size(); ++i) {
       tester.insert(pair<char, int>(first_word.at(i), 0));
     }
     for (size_t i = 0; i < second_word.size(); ++i) {
       tester.insert(pair<char, int>(second_word.at(i), 0));
     }
-    for(size_t i = 0; i < third_word.size(); ++i) {
+    for (size_t i = 0; i < third_word.size(); ++i) {
       tester.insert(pair<char, int>(third_word.at(i), 0));
     }
 
@@ -56,11 +59,14 @@ int main() {
       bool already_checked = false;
       string first_word_test, second_word_test, third_word_test;
       int first_word_int, second_word_int, thrid_word_int;
+
+      // Assign new values to the keys
       for (it = tester.begin(); it != tester.end(); ++it) {
         it -> second = permuations.at(i);
         ++i;
       }
 
+      // Lookup the values for each letter and create a string
       for (size_t i = 0; i < first_word.size(); ++i) {
         it = tester.find(first_word.at(i));
         first_word_test += to_string(it -> second);
@@ -77,10 +83,14 @@ int main() {
       }
       if (third_word_test.at(0) == '0') continue;
 
+      // Convert the strings to ints
       first_word_int = stoi(first_word_test);
       second_word_int = stoi(second_word_test);
       thrid_word_int = stoi(third_word_test);
 
+      // Check if the canidate is valid solution.
+      // If valid, checks to see whether the solution has already
+      // been checked. If not, print to stdout.
       if (first_word_int + second_word_int == thrid_word_int) {
         for (size_t i = 0; i < checked_permutations.size(); ++i) {
           if (checked_permutations.at(i) == tester) {
@@ -90,10 +100,15 @@ int main() {
         }
         if (already_checked) {
           continue;
-        } else checked_permutations.push_back(tester);
-        cout << first_word_int << "+" << second_word_int << "=" << thrid_word_int << endl;
+        } else {
+          checked_permutations.push_back(tester);
+        }
+        cout << first_word_int << "+" << second_word_int << "="
+             << thrid_word_int << endl;
         solution_found = true;
       }
+      // Gernate a new new set of permuations until back at the
+      // original set
     } while (next_permutation(permuations.begin(), permuations.end()));
 
     if (solution_found == false) {

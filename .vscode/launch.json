@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "(gdb) Launch",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "/home/ccmoyer/csce350P2/a.out",
+        "args": ["< test.txt"],
+        "stopAtEntry": false,
+        "cwd": "/home/ccmoyer/csce350P2/",
+        "environment": [],
+        "externalConsole": true,
+        "windows": {
+          "MIMode": "gdb",
+          "miDebuggerPath": "/usr/bin/gdb",
+          "setupCommands": [
+            {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+            }
+          ]
+        },
+      }
+    ]
+  }

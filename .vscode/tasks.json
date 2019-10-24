@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "windows": {
+      "options": {
+        "shell": {
+          "executable": "bash.exe",
+          "args": ["-c"]
+        }
+      }
+    },
+    "tasks": [
+      {
+        "label": "build main.cpp on WSL",
+        "type": "shell",
+        "command": "g++",
+        "args": [
+          "-g",
+          "-o",
+          "-std=c++11",
+          "/home/ccmoyer/csce350P2/a.out",
+          "main.cpp"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
